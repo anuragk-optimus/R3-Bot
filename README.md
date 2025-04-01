@@ -38,7 +38,7 @@ This project is a chatbot built using the Python Bot Framework. The chatbot leve
 
 1. **Run the chatbot**:
     ```sh
-    python bot.py
+    python app.py
     ```
 
 2. **Interact with the chatbot**: Open your preferred chat interface and start asking questions. The chatbot will use the data source and RAG to provide answers.
