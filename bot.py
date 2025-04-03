@@ -3,9 +3,11 @@
 
 from botbuilder.core import ActivityHandler, TurnContext, MessageFactory
 from botbuilder.schema import ChannelAccount,Attachment
-from GetChat import chat
+# from GetChat import chat
 import os
 import json
+from LangGraph import getGraph
+from langchain_core.messages import HumanMessage
 
 
 class MyBot(ActivityHandler):
@@ -33,7 +35,27 @@ class MyBot(ActivityHandler):
             else:
                 await turn_context.send_activity(str(turn_context.activity))
         else:
-            await turn_context.send_activity(f"{chat(turn_context.activity.text )}")
+            graph = await getGraph()
+            prev = 0
+            str = ""
+            initial_message = MessageFactory.text("...")
+            response = await turn_context.send_activity(initial_message)
+            message_id = response.id
+            for msg, metadata in graph.stream(input={"messages": [HumanMessage(content = turn_context.activity.text)]}, stream_mode="messages"):
+                # print (msg.content)
+                str = str+ msg.content
+                if (len(str) - prev) > 100:
+                    prev = len(str)
+                    # print("sending update")
+                    message = MessageFactory.text(str)
+                    message.id = message_id
+                    await turn_context.update_activity(message)
+            message = MessageFactory.text(str)
+            message.id = message_id
+            await turn_context.update_activity(message)
+                # print(message)
+                
+            
         # await turn_context.send_activity("hi")
       
 
